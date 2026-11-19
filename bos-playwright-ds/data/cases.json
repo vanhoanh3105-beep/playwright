@@ -1,0 +1,74 @@
+[
+  {
+    "id": "WF-DS-001",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Có Permanent Agent Active đủ năng lực cho phần việc của Goal.",
+    "steps": "1) Gửi Goal có phần việc trùng với Agent hiện có; 2) mở existing-agent matches và quyết định.",
+    "expected": "Planner xem xét reuse Agent hiện có và không tạo Agent trùng nếu Agent hiện có đáp ứng an toàn.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-002",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Có Agent hiện có gần phù hợp nhưng thiếu một Skill đã đăng ký.",
+    "steps": "1) Gửi Goal cần năng lực đó; 2) kiểm tra quyết định Planner.",
+    "expected": "Planner xem xét extend Agent hiện có trước khi đề xuất tạo Agent mới nếu việc mở rộng có thể đáp ứng an toàn.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-006",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Có Agent quá tải hoặc capacity fixture được môi trường hỗ trợ.",
+    "steps": "1) Gửi Goal phát sinh thêm công việc; 2) kiểm tra cách discovery tính khả năng đảm nhận.",
+    "expected": "Planner xét trạng thái/quá tải nếu dữ liệu đó tồn tại; không mặc định Agent phù hợp là có thể đảm nhận thêm công việc.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-007",
+    "priority": "P0",
+    "actor": "CEO Agent / Policy Engine",
+    "precondition": "Có proposal cùng tenant và role_key ở pending_approval.",
+    "steps": "1) Gửi Goal có vai trò tương tự; 2) kiểm tra danh sách proposal và cảnh báo.",
+    "expected": "Proposal trùng được đánh dấu để xem xét; không âm thầm sinh thêm đề xuất cùng vai trò.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-009",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Có Agent hiện tại có thể đáp ứng một phần Goal.",
+    "steps": "1) Gửi Goal có hai phần việc; 2) xem từng đề xuất.",
+    "expected": "Planner có thể reuse/extend cho phần phù hợp và chỉ đề xuất năng lực mới cho phần còn thiếu, với lý do rõ.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-010",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Có temporary sub-agent gắn với task đã hoàn thành.",
+    "steps": "1) Gửi Goal yêu cầu năng lực tương tự; 2) kiểm tra kết quả discovery.",
+    "expected": "Temporary sub-agent không tự động chuyển thành Permanent Agent hoặc xuất hiện như nhân viên lâu dài.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-011",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Không có Agent phù hợp và không có năng lực hiện tại đáp ứng.",
+    "steps": "1) Gửi Goal có một vai trò mới; 2) xem action trong proposal.",
+    "expected": "Planner có thể đề xuất create_agent và giải thích khoảng trống năng lực; đề xuất vẫn phải qua approval.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  },
+  {
+    "id": "WF-DS-012",
+    "priority": "P0",
+    "actor": "CEO Agent / Workforce Planner",
+    "precondition": "Goal có thể đáp ứng mà chưa cần thêm Agent hoặc còn thiếu dữ kiện quan trọng.",
+    "steps": "1) Gửi Goal tương ứng; 2) kiểm tra action được chọn.",
+    "expected": "Planner có thể chọn defer khi chưa cần thêm Agent; không tạo mới chỉ vì người dùng yêu cầu phân tích workforce.",
+    "source": "Từ mục 4.3, mục 6.3 và các E2E-08 / unit test về discovery."
+  }
+]

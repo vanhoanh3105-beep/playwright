@@ -1,0 +1,34 @@
+{
+  "ui": {
+    "composer": "textarea, [contenteditable=true][role=textbox]",
+    "assistant": ".chat-b.chat-ai .chat-content",
+    "send": ""
+  },
+  "records": {
+    "WF-PL-017": {
+      "path": "",
+      "mapping": {},
+      "expected": {}
+    },
+    "WF-DM-006": {
+      "path": "",
+      "mapping": {},
+      "expected": {}
+    },
+    "WF-DM-010": {
+      "path": "",
+      "mapping": {},
+      "expected": {}
+    },
+    "WF-DM-011": {
+      "path": "",
+      "mapping": {},
+      "expected": {}
+    },
+    "WF-API-002": {
+      "path": "",
+      "mapping": {},
+      "expected": {}
+    }
+  }
+}

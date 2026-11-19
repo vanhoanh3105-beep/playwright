@@ -1,0 +1,112 @@
+[
+  {
+    "stt": 1,
+    "id": "WF-GO-001",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Tenant QA hoạt động; CEO có capability workforce.inspect và workforce.plan theo scope.",
+    "steps": "1) Mở CEO Chat; 2) gửi mục tiêu tự động hóa tiếp nhận và phân loại lead; 3) mở kết quả workflow/kế hoạch.",
+    "expected": "Hệ thống tiếp nhận Goal và tạo kết quả phân tích hoặc workflow tương ứng; không báo thành công nếu backend không tạo được kết quả hợp lệ.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 2,
+    "id": "WF-GO-002",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Có dữ liệu QA về doanh nghiệp và ngành nghề.",
+    "steps": "1) Gửi Goal kèm mô tả doanh nghiệp, ngành nghề và quy trình liên quan; 2) xem WorkforceRequirement.",
+    "expected": "Kết quả sử dụng các đầu vào được cung cấp và thể hiện mục tiêu, công việc, năng lực, phụ thuộc, chỉ tiêu đánh giá và giới hạn rủi ro.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 3,
+    "id": "WF-GO-004",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "CEO có quyền tạo kế hoạch.",
+    "steps": "1) Gửi một Goal hợp lệ; 2) đối chiếu từng nhu cầu Agent/đề xuất với Goal hoặc Task được nêu.",
+    "expected": "Mỗi nhu cầu Agent liên kết với ít nhất một Goal hoặc Task hợp lệ.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 4,
+    "id": "WF-GO-005",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Tenant có Goal QA hợp lệ.",
+    "steps": "1) Gửi Goal; 2) mở từng đề xuất Agent; 3) kiểm tra justification.",
+    "expected": "CEO giải thích vì sao cần năng lực/Agent đó và gắn lý do với khoảng trống nghiệp vụ.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 5,
+    "id": "WF-GO-006",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Dùng Goal QA không chứa bất kỳ quyền truy cập hệ thống nào.",
+    "steps": "1) Yêu cầu tự động hóa một quy trình; 2) kiểm tra Tools/permissions đề xuất.",
+    "expected": "CEO không suy diễn quyền truy cập hệ thống từ mục tiêu kinh doanh; mọi quyền đề xuất phải được kiểm tra theo policy riêng.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 6,
+    "id": "WF-GO-009",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "CEO Agent",
+    "preconditions": "Có Goal QA và danh sách Agent hiện tại.",
+    "steps": "1) Gửi Goal; 2) kiểm tra đầu vào/tóm tắt workforce mà CEO dùng.",
+    "expected": "Phân tích có xét Agent hiện tại, Skills/Tools khả dụng, Connections, ngân sách và chính sách nếu các dữ liệu này có sẵn.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 7,
+    "id": "WF-GO-010",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Có thể gửi Goal rỗng hoặc chỉ chứa khoảng trắng qua UI hoặc test harness được cấp phép.",
+    "steps": "1) Gửi nội dung rỗng; 2) quan sát validation; 3) kiểm tra không tạo plan rác.",
+    "expected": "Hệ thống không tạo Goal/plan hợp lệ từ đầu vào rỗng; thông báo hoặc lỗi validation phản ánh được đầu vào không hợp lệ mà không giả định câu chữ cụ thể.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 8,
+    "id": "WF-GO-012",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Có sẵn Goal chứa hai mục tiêu nghiệp vụ độc lập.",
+    "steps": "1) Gửi Goal kết hợp hai mục tiêu; 2) kiểm tra danh sách công việc, phụ thuộc và năng lực.",
+    "expected": "Kế hoạch phân tách các công việc/năng lực đủ rõ để kiểm tra và không gán một Agent vào trách nhiệm không liên quan mà không có lý do.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 9,
+    "id": "WF-GO-013",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Có sẵn Goal mơ hồ và chưa cung cấp KPI.",
+    "steps": "1) Gửi Goal mơ hồ; 2) xem câu hỏi làm rõ, giả định hoặc chỉ tiêu đề xuất.",
+    "expected": "Thông tin chưa xác định được thể hiện là chưa xác minh hoặc cần làm rõ; không khẳng định KPI người dùng chưa cung cấp là yêu cầu đã chốt.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  },
+  {
+    "stt": 10,
+    "id": "WF-GO-014",
+    "group": "GO",
+    "priority": "P0",
+    "actor": "Người dùng / CEO Agent",
+    "preconditions": "Có thể gửi yêu cầu tạo Goal vượt quyền tenant của người dùng bằng fixture QA.",
+    "steps": "1) Gửi request thuộc tenant ngoài scope; 2) kiểm tra trạng thái và dữ liệu được tạo.",
+    "expected": "Yêu cầu bị backend từ chối; không tạo Goal/plan trong tenant mà actor không có quyền.",
+    "source": "Từ mục 4.2, CEO Orchestrator và tiêu chí nghiệm thu Goal Analysis."
+  }
+]

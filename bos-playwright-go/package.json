@@ -1,0 +1,30 @@
+{
+  "name": "bos-playwright-go",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone GO — 10 BOS Goal Analysis cases",
+  "scripts": {
+    "test": "node scripts/run-go.mjs",
+    "test:go": "node scripts/run-go.mjs",
+    "smoke:go": "node scripts/run-go.mjs --quick",
+    "test:cases": "node scripts/run-go.mjs --cases-only",
+    "test:list": "node scripts/list-go.mjs",
+    "verify": "node scripts/verify.mjs && node --test tests/unit/*.test.mjs",
+    "go:unit": "node --test tests/unit/*.test.mjs",
+    "login:ceo": "node scripts/login.mjs ceo",
+    "login:admin": "node scripts/login.mjs admin",
+    "login:employee": "node scripts/login.mjs employee",
+    "go:discover": "node scripts/discover-go.mjs",
+    "report": "playwright show-report playwright-report/GO/cases",
+    "report:smoke": "playwright show-report playwright-report/GO/readiness",
+    "report:summary": "node scripts/summary.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "dotenv": "^16.6.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

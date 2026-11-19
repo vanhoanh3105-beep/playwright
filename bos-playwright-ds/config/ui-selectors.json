@@ -1,0 +1,4 @@
+{
+  "chatInput": "textarea[aria-label='Hỏi AI']",
+  "chatSend": "button[aria-label='Gửi câu hỏi']"
+}

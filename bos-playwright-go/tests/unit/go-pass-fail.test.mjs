@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {evaluate,assessUi} from '../../src/groups/go-pass-fail.js';
+import {createBinaryReport} from '../../scripts/report-go-pass-fail.mjs';
+import {caseIds} from '../../src/groups/go-ui-batch.js';
+const runId='2026-11-19T09-20-24-728Z',row={id:'WF-GO-001'},answer='Mục tiêu lead. Quy trình công việc. Agent phân loại.';
+const e={caseId:row.id,runId,forwarded:true,http:200,wireMode:{run_mode:'plan'},sse:{done:true,events:['done'],contentLength:answer.length,resultKind:'unverified'},transport:'PASS_TRANSPORT',sessionPersisted:true,newCounts:{goals:0,agents:0,proposals:0,planRefs:0,sessions:1}};
+test('binary report UI pass does not become original business pass',()=>{const r=evaluate(row,e,answer,runId);assert.equal(r.uiStatus,'PASS');assert.equal(r.status,'FAIL');assert.match(r.reason,/unverified/);});
+test('missing signals and truncation fail UI',()=>{for(const a of ['lead','lead công việc agent câu trả lời bị cắt'])assert.equal(assessUi(row,{...e,sse:{...e.sse,contentLength:a.length}},a,runId).status,'FAIL');});
+test('wrong run, incomplete SSE, unsafe mode, missing file fail UI',()=>{for(const x of [{...e,runId:'other'},{...e,sse:{...e.sse,done:false}},{...e,wireMode:{run_mode:'auto'}},{...e,newCounts:{goals:1,agents:0}}])assert.equal(assessUi(row,x,answer,runId).status,'FAIL');assert.equal(assessUi(row,e,null,runId).status,'FAIL');});
+test('empty UI check passes only without request or unexpected ID',()=>{const r={id:'WF-GO-010'},v={caseId:r.id,runId,forwarded:false,rejected:0,http:null,newCounts:{goals:0,agents:0,proposals:0,planRefs:0,sessions:0}};assert.equal(evaluate(r,v,null,runId).uiStatus,'PASS');assert.equal(evaluate(r,v,null,runId).status,'FAIL');assert.equal(assessUi(r,{...v,rejected:1},null,runId).status,'FAIL');assert.equal(assessUi(r,{...v,newCounts:{...v.newCounts,planRefs:1}},null,runId).status,'FAIL');});
+test('cross tenant not executed is binary acceptance fail not a confirmed defect',()=>{const r=evaluate({id:'WF-GO-014'},null,null,runId);assert.equal(r.status,'FAIL');assert.equal(r.uiStatus,'FAIL');assert.match(r.reason,/Chưa thực hiện/);});
+test('all ten rows exported in two binary columns and original report preserved',()=>{const base=fs.mkdtempSync(path.join(os.tmpdir(),'go-binary-'));try{const dir=path.join(base,'ui-runs',runId);fs.mkdirSync(dir,{recursive:true});const raw=JSON.stringify({runId,kind:'ui-batch',rows:caseIds.map(id=>({id,status:'NEEDS_REVIEW'}))});fs.writeFileSync(path.join(dir,'ui-batch.json'),raw);fs.writeFileSync(path.join(dir,row.id+'.json'),JSON.stringify(e));fs.writeFileSync(path.join(dir,row.id+'.answer.local.txt'),answer+'\n');const r=createBinaryReport(runId,{outputBase:base});assert.deepEqual(r.statuses,{PASS:0,FAIL:10});assert.deepEqual(r.uiStatuses,{PASS:1,FAIL:9});assert.equal(r.rows.length,10);assert.equal(fs.readFileSync(path.join(dir,'ui-batch.json'),'utf8'),raw);assert.equal(fs.readFileSync(path.join(base,'pass-fail.csv'),'utf8').split('\r\n').length,12);}finally{fs.rmSync(base,{recursive:true,force:true});}});

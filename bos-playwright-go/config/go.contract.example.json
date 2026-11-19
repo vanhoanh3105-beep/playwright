@@ -1,0 +1,178 @@
+{
+  "confirmed": false,
+  "note": "MẪU minh họa schema, không phải API WCC đã xác minh. Sao chép thành go.contract.json rồi map theo backend thật. Không dùng JSON do LLM tự sinh làm chứng cứ.",
+  "chat": {
+    "pathPattern": "",
+    "responseIdPath": "data.id",
+    "resultUrl": "",
+    "resultSelector": "",
+    "resultIdPath": "data.id",
+    "inputPath": "data.input",
+    "statePath": "data.status",
+    "successStates": [
+      "completed"
+    ],
+    "failureStates": [
+      "failed",
+      "error"
+    ],
+    "timeoutMs": 180000
+  },
+  "resultFields": {
+    "goals": {
+      "path": "data.goals",
+      "fields": {
+        "id": "id",
+        "name": "name"
+      }
+    },
+    "tasks": {
+      "path": "data.tasks",
+      "fields": {
+        "id": "id",
+        "name": "name",
+        "goalIds": "goal_ids",
+        "capabilities": "capabilities",
+        "dependencies": "depends_on"
+      }
+    },
+    "proposals": {
+      "path": "data.proposals",
+      "fields": {
+        "agentKey": "agent_key",
+        "goalIds": "goal_ids",
+        "taskIds": "task_ids",
+        "gapIds": "gap_ids",
+        "justification": "justification"
+      }
+    },
+    "gaps": {
+      "path": "data.gaps",
+      "fields": {
+        "id": "id",
+        "name": "name"
+      }
+    },
+    "business": "data.requirement.business",
+    "industry": "data.requirement.industry",
+    "process": "data.requirement.process",
+    "kpis": {
+      "path": "data.requirement.kpis",
+      "fields": {
+        "name": "name",
+        "status": "status"
+      }
+    },
+    "risks": "data.requirement.risk_limits",
+    "permissions": "data.requirement.proposed_permission_ids",
+    "context": "data.workforce_context",
+    "clarifications": "data.clarifications",
+    "assumptions": "data.assumptions",
+    "tools": {
+      "path": "data.requirement.proposed_tools",
+      "fields": {
+        "id": "id",
+        "permissionIds": "permission_ids"
+      }
+    }
+  },
+  "policy": {
+    "url": "",
+    "resultIdPath": "data.result_id",
+    "fields": {
+      "checks": {
+        "path": "data.checks",
+        "fields": {
+          "permission": "permission",
+          "decision": "decision",
+          "policyId": "policy_id"
+        }
+      },
+      "grantedPermissions": "data.granted_permissions"
+    }
+  },
+  "context": {
+    "url": "",
+    "fields": {
+      "agents": "data.agents",
+      "skills": "data.skills",
+      "tools": "data.tools",
+      "connections": "data.connections",
+      "policies": "data.policies",
+      "budget": "data.budget"
+    }
+  },
+  "lists": {
+    "goals": {
+      "url": "",
+      "itemsPath": "data.items",
+      "idPath": "id",
+      "totalPath": "data.total"
+    },
+    "plans": {
+      "url": "",
+      "itemsPath": "data.items",
+      "idPath": "id",
+      "totalPath": "data.total"
+    }
+  },
+  "validation": {
+    "uiErrorSelector": "",
+    "errorCodePath": "error.code",
+    "errorCodes": [
+      "VALIDATION_ERROR"
+    ],
+    "observationMs": 5000,
+    "requestInputPath": "message"
+  },
+  "crossTenant": {
+    "confirmed": false,
+    "tenant": "",
+    "actorRole": "employee",
+    "observerRole": "admin",
+    "url": "",
+    "payload": {
+      "goal": "{prompt}",
+      "tenant_id": "{tenant}"
+    },
+    "deniedStatuses": [
+      403
+    ],
+    "lists": {
+      "goals": {
+        "url": "",
+        "itemsPath": "data.items",
+        "idPath": "id",
+        "totalPath": "data.total"
+      },
+      "plans": {
+        "url": "",
+        "itemsPath": "data.items",
+        "idPath": "id",
+        "totalPath": "data.total"
+      }
+    }
+  },
+  "fixtures": {
+    "leadPattern": "lead|khách hàng tiềm năng",
+    "businessPattern": "QA Solar",
+    "industryPattern": "năng lượng|solar",
+    "processPattern": "tiếp nhận|phân loại|lead",
+    "reportPattern": "báo cáo.*tồn kho|tồn kho",
+    "leadTaskPattern": "lead|khách hàng tiềm năng",
+    "reportTaskPattern": "tồn kho|báo cáo kho",
+    "policyDecisions": [
+      "allow",
+      "deny",
+      "approval_required"
+    ],
+    "unconfirmedKpiStatuses": [
+      "proposed",
+      "unverified",
+      "needs_clarification",
+      "assumption"
+    ],
+    "gapPattern": "ngoài giờ|chậm|thiếu.*phân loại|lead.*phân loại",
+    "crossAssignmentReasonPattern": "phân loại.*(tồn kho|báo cáo)|(?:tồn kho|báo cáo).*phân loại|(?:kỹ năng|năng lực).*cả hai"
+  }
+}

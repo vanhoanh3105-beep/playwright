@@ -1,0 +1,606 @@
+{
+  "confirmed": false,
+  "source": "Discovery WCC do tester cung cấp; chỉ xác minh cấu trúc response đã quan sát",
+  "endpoints": [
+    {
+      "method": "GET",
+      "path": "/api/auth/me/",
+      "status": 200,
+      "queryKeys": [],
+      "responseShape": {
+        "id": "string",
+        "username": "string",
+        "is_superuser": "boolean",
+        "role": "string",
+        "full_name": "string",
+        "company": "string",
+        "company_name": "string",
+        "department": "null",
+        "department_name": "null",
+        "job_title": "string",
+        "phone": "string",
+        "companies": {
+          "type": "array",
+          "sample": {
+            "id": "string",
+            "name": "string",
+            "code": "string"
+          }
+        },
+        "multi_company": "boolean",
+        "selected_skill_keys": {
+          "type": "array",
+          "sample": "empty"
+        },
+        "status_emoji": "string",
+        "status_text": "string",
+        "ngon_ngu": "string",
+        "ngon_ngu_giong": "string",
+        "mute_until": "null",
+        "bypass_until": "null",
+        "bypass_by_company": {},
+        "email": "string",
+        "features": {
+          "brain_stream": "boolean"
+        },
+        "may_cua_toi_enabled": "boolean",
+        "persona_chosen": "boolean",
+        "mfa_enabled": "boolean",
+        "mfa_setup_required": "boolean",
+        "mfa_backup_codes_left": "number",
+        "access_state": "string",
+        "checkout_url": "string",
+        "ai_quota": {
+          "used": "number",
+          "limit": "number",
+          "percent": "number",
+          "period_end": "string",
+          "plan": "string"
+        },
+        "company_create": {
+          "allowed": "boolean",
+          "reason": "string",
+          "detail": "string",
+          "signup_url": "string",
+          "checkout_url": "string",
+          "han_muc": {
+            "da_dung": "number",
+            "toi_da": "null",
+            "trang_thai": "string"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/companies/",
+      "status": 200,
+      "queryKeys": [],
+      "responseShape": {
+        "count": "number",
+        "next": "null",
+        "previous": "null",
+        "results": {
+          "type": "array",
+          "sample": {
+            "id": "string",
+            "website_url": "null",
+            "ai_quota": {
+              "plan": "string",
+              "limit": "number",
+              "used": "number",
+              "extra": "number",
+              "remaining": "number",
+              "unlimited": "boolean",
+              "chi_model_mien_phi": "boolean",
+              "ai_tiet_kiem": "boolean"
+            },
+            "runtime_admin_url": "string",
+            "tenant_id": "string",
+            "created_at": "string",
+            "updated_at": "string",
+            "deleted_at": "null",
+            "name": "string",
+            "code": "string",
+            "slug": "string",
+            "vault_path": "string",
+            "legal_name": "null",
+            "tax_code": "null",
+            "logo_url": "null",
+            "color": "string",
+            "status": "string",
+            "industry": "string",
+            "representative": "string",
+            "ceo_name": "string",
+            "hotline": "string",
+            "hotline_alt": "string",
+            "email_contact": "string",
+            "email_domain": "string",
+            "address_public": "string",
+            "address_contract": "string",
+            "bank_account": "string",
+            "bank_bin": "string",
+            "bank_name": "string",
+            "bank_account_number": "string",
+            "bank_account_holder": "string",
+            "facebook_page_url": "string",
+            "zalo_oa": "string",
+            "google_ads_customer_id": "string",
+            "facebook_ads_account_id": "string",
+            "crm_provider": "string",
+            "email_marketing_provider": "string",
+            "claude_workspace": "string",
+            "n8n_url": "string",
+            "pricing_note": "string",
+            "notes": "string",
+            "plan": "string",
+            "extra_requests": "number",
+            "ai_requests_used": "number",
+            "ai_requests_period": "string",
+            "hidden_catalog_keys": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "config": {
+              "source": "string",
+              "onboarding": {
+                "viec_dau": "string",
+                "luot_ai_dau": "string",
+                "moi_nguoi_thu_2": "string",
+                "bao_cao_ngay_dau": "string"
+              },
+              "cp_tenant_id": "string",
+              "seo_noi_dung": {
+                "lan_cuoi": "string",
+                "so_brief": "number"
+              },
+              "a2_nhom_da_bat": {
+                "type": "array",
+                "sample": "string"
+              },
+              "workspace_slug": "string",
+              "public_base_url": "string",
+              "seeded_khoi_dau": "string",
+              "toolset_dot_da_ap": {
+                "type": "array",
+                "sample": "string"
+              },
+              "kho_ai_doc_tu_dong": "boolean"
+            },
+            "ai_industry": "string",
+            "ai_memory": "string",
+            "billing_exempt": "boolean",
+            "ai_tiet_kiem": "boolean",
+            "seats_paid": "number",
+            "last_activity_at": "string",
+            "is_suspended": "boolean",
+            "suspended_at": "null",
+            "owner": "null"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/approvals/pending_count/",
+      "status": 200,
+      "queryKeys": [
+        "company_id"
+      ],
+      "responseShape": {
+        "count": "number",
+        "cua_ban_cho_nguoi_khac": "number"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/brain/dang-xem/",
+      "status": 200,
+      "queryKeys": [],
+      "requestShape": {
+        "session_id": "string",
+        "hien": "boolean",
+        "company_id": "string"
+      },
+      "responseShape": {
+        "ok": "boolean"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/brain/sessions/",
+      "status": 200,
+      "queryKeys": [
+        "company_id"
+      ],
+      "responseShape": {
+        "sessions": {
+          "type": "array",
+          "sample": {
+            "id": "string",
+            "title": "string",
+            "updated_at": "string",
+            "preview": "string",
+            "message_count": "number",
+            "agent": {
+              "id": "string",
+              "name": "string",
+              "avatar": "string",
+              "label": "string",
+              "enabled": "boolean"
+            },
+            "project": "null",
+            "kind": "string"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai-agents/",
+      "status": 200,
+      "queryKeys": [
+        "company_id",
+        "include_shared",
+        "page_size"
+      ],
+      "responseShape": {
+        "count": "number",
+        "next": "null",
+        "previous": "null",
+        "results": {
+          "type": "array",
+          "sample": {
+            "id": "string",
+            "company_name": "string",
+            "model_name": "null",
+            "model_code": "null",
+            "worker_model_name": "null",
+            "worker_model_code": "null",
+            "created_by_name": "string",
+            "huy_hieu_nen_tang": "string",
+            "managers": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "quyen": {
+              "la_chu": "boolean",
+              "sua": "boolean",
+              "xuat_ban": "boolean",
+              "go_xuat_ban": "boolean",
+              "hien_thi": "boolean"
+            },
+            "connected_webhook_set": "boolean",
+            "connected_webhook_host": "string",
+            "tenant_id": "string",
+            "created_at": "string",
+            "updated_at": "string",
+            "deleted_at": "null",
+            "name": "string",
+            "specialization": "string",
+            "industry": "string",
+            "template_key": "string",
+            "description": "string",
+            "skills": {
+              "type": "array",
+              "sample": "string"
+            },
+            "system_prompt": "string",
+            "profile": {
+              "ky_nang": {
+                "type": "array",
+                "sample": {
+                  "ten": "[depth limit]",
+                  "nguon": "[depth limit]",
+                  "proposal_id": "[depth limit]"
+                }
+              },
+              "workforce": {
+                "role_key": "string",
+                "config_hash": "string",
+                "responsibilities": {
+                  "type": "array",
+                  "sample": "[depth limit]"
+                },
+                "source_proposal_id": "string"
+              }
+            },
+            "connected_agent": "string",
+            "avatar": "string",
+            "is_template": "boolean",
+            "auto_built": "boolean",
+            "created_by_ai": "boolean",
+            "enabled": "boolean",
+            "prompt_history": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "run_count": "number",
+            "last_run_at": "null",
+            "vai_tang": "string",
+            "trang_thai_xuat_ban": "string",
+            "hien_thi_mac_dinh": "string",
+            "hien_thi_phong_ban": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "ngon_ngu": "string",
+            "tam_dung_den": "null",
+            "company": "string",
+            "model": "null",
+            "worker_model": "null",
+            "created_by": "number",
+            "avatar_img": "string",
+            "label": "string",
+            "gioi_thieu": "string"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/objectives/",
+      "status": 200,
+      "queryKeys": [
+        "company_id",
+        "page_size",
+        "ordering"
+      ],
+      "responseShape": {
+        "count": "number",
+        "next": "null",
+        "previous": "null",
+        "results": {
+          "type": "array",
+          "sample": {
+            "id": "string",
+            "key_results": {
+              "type": "array",
+              "sample": {
+                "id": "string",
+                "linked_task_count": "number",
+                "result_type_label": "string",
+                "data_quality": "string",
+                "tenant_id": "string",
+                "created_at": "string",
+                "updated_at": "string",
+                "deleted_at": "null",
+                "title": "string",
+                "result_type": "string",
+                "direction": "string",
+                "start_value": "string",
+                "target_value": "string",
+                "actual_value": "string",
+                "has_measurement": "boolean",
+                "unit": "string",
+                "weight": "string",
+                "is_critical": "boolean",
+                "is_main": "boolean",
+                "progress": "string",
+                "raw_progress": "null",
+                "expected_progress": "null",
+                "confidence": "null",
+                "last_measurement_at": "null",
+                "freshness_sla_hours": "null",
+                "metric_source": "string",
+                "metric_config": {},
+                "last_sync_at": "null",
+                "last_sync_status": "string",
+                "last_sync_error": "string",
+                "status": "string",
+                "version_no": "number",
+                "baseline": "null",
+                "checkin_cadence_days": "number",
+                "last_checkin_at": "null",
+                "health": "string",
+                "objective": "string",
+                "linked_tasks": {
+                  "type": "array",
+                  "sample": "empty"
+                }
+              }
+            },
+            "chuyen_ky_sang": "null",
+            "owner_name": "string",
+            "company_name": "string",
+            "project_name": "null",
+            "task_count": "number",
+            "done_task_count": "number",
+            "tenant_id": "string",
+            "created_at": "string",
+            "updated_at": "string",
+            "deleted_at": "null",
+            "level": "string",
+            "title": "string",
+            "description": "string",
+            "start_date": "string",
+            "due_date": "string",
+            "progress": "null",
+            "expected_progress": "null",
+            "progress_mode": "string",
+            "status": "string",
+            "health_status": "string",
+            "health_score": "null",
+            "health_computed_at": "string",
+            "confidence": "null",
+            "last_checkin_at": "null",
+            "version_no": "number",
+            "checkin_cadence": "string",
+            "next_checkin_at": "string",
+            "checkin_reminded_at": "string",
+            "closing_note": "string",
+            "closed_at": "null",
+            "archived_at": "null",
+            "company": "string",
+            "cycle": "string",
+            "parent_goal": "null",
+            "project": "null",
+            "department": "null",
+            "owner": "number",
+            "checkin_owner": "null",
+            "carried_from_goal": "null"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/objectives/portfolio/",
+      "status": 200,
+      "queryKeys": [
+        "company_id"
+      ],
+      "responseShape": {
+        "summary": {
+          "total": "number",
+          "by_status": {
+            "active": "number",
+            "pending_approval": "number",
+            "draft": "number"
+          },
+          "by_health": {
+            "UNKNOWN": "number",
+            "BLOCKED": "number",
+            "": "number"
+          },
+          "at_risk": "number",
+          "unknown_health": "number",
+          "avg_progress": "null",
+          "measured_goals": "number",
+          "coverage_pct": "number",
+          "checkin_overdue": "number",
+          "due_soon": "number",
+          "overdue": "number",
+          "blocked": "number",
+          "without_owner": "number",
+          "without_key_result": "number",
+          "as_of": "string",
+          "caveats": {
+            "type": "array",
+            "sample": "string"
+          }
+        },
+        "by_owner": {
+          "type": "array",
+          "sample": {
+            "owner_id": "number",
+            "owner": "string",
+            "goals": "number",
+            "avg_progress": "null",
+            "at_risk": "number"
+          }
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/ai/workforce/agents/",
+      "status": 200,
+      "queryKeys": [
+        "company_id"
+      ],
+      "responseShape": {
+        "agents": {
+          "type": "array",
+          "sample": {
+            "agent_id": "string",
+            "name": "string",
+            "role": "string",
+            "status": "string",
+            "enabled": "boolean",
+            "manager_id": "string",
+            "manager_name": "string",
+            "config_hash": "string",
+            "budget_monthly": "string",
+            "cost_month": "string",
+            "skills": {
+              "type": "array",
+              "sample": "string"
+            },
+            "activated_at": "null"
+          }
+        },
+        "proposals": {
+          "type": "array",
+          "sample": {
+            "proposal_id": "string",
+            "plan_id": "string",
+            "action": "string",
+            "name": "string",
+            "role_key": "string",
+            "status": "string",
+            "justification": "string",
+            "version": "number",
+            "config_hash": "string",
+            "responsibilities": {
+              "type": "array",
+              "sample": "string"
+            },
+            "skills": {
+              "type": "array",
+              "sample": {
+                "name": "string",
+                "skill_key": "string",
+                "skill_version": "string"
+              }
+            },
+            "tools": {
+              "type": "array",
+              "sample": {
+                "key": "string",
+                "risk": "string",
+                "scope": {
+                  "type": "array",
+                  "sample": "[depth limit]"
+                }
+              }
+            },
+            "tools_bi_cat": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "connections": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "budget_monthly": "string",
+            "risk": "string",
+            "assumptions": {
+              "type": "array",
+              "sample": "empty"
+            },
+            "approval_id": "null",
+            "existing_agent_id": "null",
+            "created_agent_id": "null"
+          }
+        },
+        "overview": {
+          "tong": "number",
+          "active": "number",
+          "pending_approval": "number",
+          "blocked": "number",
+          "failed": "number",
+          "ready": "number",
+          "paused": "number",
+          "testing": "number",
+          "retired": "number",
+          "chi_phi_thang": "string",
+          "chi_so": {
+            "tao_loi": "number",
+            "tu_choi": "number",
+            "ty_le_tu_choi": "number",
+            "ty_le_kiem_dat": "number",
+            "gio_toi_san_sang": "null"
+          }
+        }
+      }
+    }
+  ],
+  "missing": [
+    "POST gửi nội dung Goal",
+    "GET kết quả phân tích tương ứng",
+    "GET danh sách Plan đầy đủ",
+    "policy/context đầy đủ",
+    "cross-tenant fixture"
+  ]
+}

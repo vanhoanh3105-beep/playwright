@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { reviewGoal001 } from '../../src/groups/go-review.js';
+const text='Lead: bối cảnh, quy trình, nhân sự AI, KPI, rủi ro, milestone. (câu trả lời bị cắt ở 6000 ký tự)';
+const probe={mode:'send-one',status:'PASS_TRANSPORT',readStatus:'PASS_READ',http:200,contentType:'text/event-stream',transportStatus:'DONE_RECEIVED',sessionPersisted:true,sse:{done:true,role:'assistant',sessionIdPresent:true,turnIdPresent:true,messageIdPresent:true,contentLength:text.length,events:['turn','tool_start','done'],metaEnums:{result_kind:'unverified',run_mode:'auto'}}};
+test('GO review: transport and all signals do not imply business PASS',()=>{const x=reviewGoal001(probe,text+'\n');assert.equal(x.status,'NEEDS_REVIEW');assert.equal(x.signalCount,7);assert.equal(x.truncated,true);assert.equal(x.toolEvents,true);assert.equal(x.answerLengthMatches,true);});
+test('GO review: unrelated or mismatched answer is not evaluated',()=>{const x=reviewGoal001(probe,text+' extra');assert.equal(x.signalCount,0);assert.equal(x.answerLengthMatches,false);assert.ok(x.checks.every(c=>c.status==='NOT_CHECKED'));});
+test('GO review: read-only is not a sent Goal',()=>{const x=reviewGoal001({...probe,mode:'read-only',status:'PASS_READ'},text);assert.equal(x.status,'NOT_RUN');assert.equal(x.signalCount,0);});
+test('GO review: HTTP 200 without done is not transport PASS',()=>{const x=reviewGoal001({...probe,sse:{...probe.sse,done:false}},text);assert.equal(x.transport,'NOT_VERIFIED');});
+test('GO review: no required signal is invented from blank or missing answer',()=>{const x=reviewGoal001(probe,undefined);assert.equal(x.signalCount,0);assert.equal(x.status,'NEEDS_REVIEW');});
+test('GO review: a short answer without truncation marker cannot prove complete content',()=>{const t='Lead';const x=reviewGoal001({...probe,sse:{...probe.sse,contentLength:t.length}},t);assert.equal(x.signalCount,1);assert.equal(x.truncated,false);assert.equal(x.status,'NEEDS_REVIEW');});

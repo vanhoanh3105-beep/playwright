@@ -1,0 +1,118 @@
+// Uses the actual UI and SSE observed on WCC. No guessed business endpoint.
+import 'dotenv/config';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { createInterface } from 'node:readline/promises';
+import { chromium, request } from '@playwright/test';
+import { config, qaUrl, selectors, storageState, safeWrite } from '../src/config.js';
+import { openApi } from '../src/http.js';
+import { readBrainSse } from '../src/groups/go-sse.js';
+import { prompts, caseIds, allowedBody, additions, inspectAnswer, assessTransport } from '../src/groups/go-ui-batch.js';
+import { seedRows, writeReport } from '../reporters/report-data.cjs';
+const args=process.argv.slice(2), selected=args.find(x=>x.startsWith('--case='))?.slice(7);
+if(!args.includes('--send')||args.some(x=>x!=='--send'&&!x.startsWith('--case='))||(selected&&!caseIds.includes(selected))){console.error('Usage: node scripts/run-go-ui.mjs --send [--case=WF-GO-001]');process.exit(2);}
+const runId=new Date().toISOString().replace(/[:.]/g,'-');
+const dir='results/groups/GO', evidenceDir=path.join(dir,'ui-runs',runId), rows=seedRows('cases');
+fs.mkdirSync(evidenceDir,{recursive:true});
+const save=()=>{writeReport(evidenceDir,'ui-batch',rows,runId);return writeReport(dir,'ui-batch',rows,runId);};
+save();
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const counts=s=>Object.fromEntries(Object.entries(s).map(([k,v])=>[k,v.length]));
+const nonempty=x=>typeof x==='string'&&x.trim()!=='';
+const errorText=e=>String(e?.message||e).split('\n')[0].slice(0,250);
+let api,browser,rl,company,modeLabel,wireMode,active=null,stopReason='';
+const chatPath='/api/ai/brain/chat/stream/';
+async function get(route,q={}){
+ const u=qaUrl(route);for(const [k,v] of Object.entries(q))u.searchParams.set(k,v);
+ const r=await api.get(u.toString(),{timeout:20000,maxRedirects:0});if(!r.ok())throw new Error(`${route}: HTTP ${r.status()}`);return r.json();
+}
+function complete(body,label){if(!Array.isArray(body?.results)||!Number.isInteger(body.count)||body.next!=null||body.count!==body.results.length)throw new Error(`${label}: incomplete/paginated`);return body.results;}
+function ids(rows,key,label){if(!Array.isArray(rows)||rows.some(x=>!nonempty(x?.[key])))throw new Error(`${label}: missing IDs`);const v=rows.map(x=>x[key]);if(new Set(v).size!==v.length)throw new Error(`${label}: duplicate IDs`);return v;}
+async function snap(){
+ const [g,w,s]=await Promise.all([get('/api/objectives/',{company_id:company,page_size:'100'}),get('/api/ai/workforce/agents/',{company_id:company}),get('/api/ai/brain/sessions/',{company_id:company})]);
+ const goals=complete(g,'goals');if(goals.some(x=>x.company!==company))throw new Error('Goal company not verified');
+ return {goals:ids(goals,'id','goals'),agents:ids(w.agents,'agent_id','agents'),proposals:ids(w.proposals,'proposal_id','proposals'),planRefs:[...new Set(w.proposals.map(x=>x.plan_id).filter(nonempty))],sessions:ids(s.sessions,'id','sessions')};
+}
+async function main(){
+ if(config('QA_ISOLATED_TEST_TENANT')!=='1')throw new Error('QA_ISOLATED_TEST_TENANT=1 required');
+ process.env.QA_RUN_ALLOW_WRITES='1';safeWrite('CHAT');
+ api=await openApi({request},'ceo');const me=await get('/api/auth/me/');
+ const companies=complete(await get('/api/companies/'),'companies');const matched=companies.filter(x=>x.code===config('QA_TENANT',{required:true})&&nonempty(x.id));
+ if(matched.length!==1||!nonempty(me?.id)||!nonempty(me.role))throw new Error('QA company or actor not verified');
+ company=matched[0].id;if(me.company!==company&&!me.companies?.some(x=>x.id===company))throw new Error('QA company membership not verified');
+ await snap();
+ browser=await chromium.launch({headless:false});const ctx=await browser.newContext({storageState:storageState('ceo'),serviceWorkers:'block'});
+ const target=qaUrl(config('UI_CEO_CHAT_PATH',{required:true})),ui=selectors();
+ const page=await ctx.newPage();
+ await ctx.route(u=>u.origin===target.origin&&u.pathname.startsWith('/api/ai/brain/chat/'),async route=>{
+  const req=route.request();if(['GET','HEAD','OPTIONS'].includes(req.method())){await route.continue();return;}let body;try{body=req.postDataJSON();}catch{}
+  if(!active||active.forwarded||new URL(req.url()).pathname!==chatPath||req.method()!=='POST'||!allowedBody(body,company,active.prompt,wireMode)){if(active)active.rejected++;await route.abort();return;}
+  if(!wireMode)wireMode={run_mode:body.run_mode,agent_auto:body.agent_auto};
+  active.forwarded=true;await route.continue();
+ });
+ async function openFresh(){
+  await page.goto(target.toString(),{waitUntil:'domcontentloaded',timeout:30000});const cur=new URL(page.url());
+  if(cur.origin!==target.origin||cur.pathname!==target.pathname)throw new Error('Unexpected chat redirect');
+  const input=page.locator(ui.chatInput).filter({visible:true}),button=page.locator(ui.chatSend).filter({visible:true});
+  await input.waitFor({state:'visible',timeout:15000});await button.waitFor({state:'visible',timeout:15000});
+  if(await input.count()!==1||await button.count()!==1)throw new Error('Chat selectors not unique');return {input,button};
+ }
+ let controls=await openFresh();rl=createInterface({input:process.stdin,output:process.stdout});
+ console.log('Select CEO NEW conversation, explicit analysis-only or approval-required mode. Disable external actions on isolated QA. Do not use full authority or Tự làm việc nhẹ.');
+ modeLabel=(await rl.question('Exact visible label of the safe mode you selected: ')).trim();
+ if(!modeLabel||!/phê duyệt|duyệt|chỉ hỏi|hỏi thôi|chỉ phân tích|tư vấn|hỏi trước|chỉ đọc|chỉ xem|hỏi đáp|hỏi và đáp|xin phép|chờ duyệt|không thực thi|approval|read.only|analysis.only/iu.test(modeLabel)||/toàn quyền|tự làm việc nhẹ|tự lái|full authority|không (?:cần|qua|yêu cầu).*duyệt|no approval/iu.test(modeLabel))throw new Error('Explicit safe mode label required. No message sent.');
+ const modeLocator=()=>page.getByText(modeLabel,{exact:true}).filter({visible:true});
+ if(await modeLocator().count()!==1)throw new Error('Selected mode label not uniquely visible; close menu before confirmation');
+ if((await rl.question('Type QA to confirm ONE batch on permitted isolated QA (external actions disabled): ')).trim()!=='QA')throw new Error('Cancelled by user');
+ rl.close();rl=null;
+ async function ensureMode(){
+  if(await modeLocator().count()===1)return;
+  const defaultMode=page.getByText('Tự làm việc nhẹ',{exact:true}).filter({visible:true});
+  if(await defaultMode.count()!==1)throw new Error('Mode reset or not verified; stopping before send');
+  await defaultMode.click({timeout:5000});const option=modeLocator();await option.waitFor({state:'visible',timeout:5000});
+  if(await option.count()!==1)throw new Error('Safe mode menu option ambiguous');await option.click({timeout:5000});
+  if(await modeLocator().count()!==1)throw new Error('Safe mode not verified after selection');
+ }
+ let n=0;
+ for(const row of rows){
+  if(selected&&row.id!==selected)continue;
+  if(row.id==='WF-GO-014'){row.status='BLOCKED';row.reason='Cần fixture tenant QA thứ hai, actor không có quyền và observer được cấp quyền; không dò tenant thật.';row.actual='Chưa gửi request cross-tenant';save();continue;}
+  if(stopReason){row.status='BLOCKED';row.reason=stopReason;save();continue;}
+  const start=Date.now(),evidence={caseId:row.id,runId,notes:['UI evidence only. No policy or structured result assertion.']};
+  console.log(`\n===== ${row.id} =====`);
+  try{
+   if(n++)controls=await openFresh();await ensureMode();
+   const {input,button}=controls;const before=await snap();evidence.before=counts(before);
+   const empty=row.id==='WF-GO-010';const prompt=empty?'':`[QA-${row.id}-${crypto.randomUUID()}] ${prompts[row.id]} Chỉ phân tích/đề xuất; không kích hoạt Agent, không cấp quyền, không gửi email hoặc thực hiện hành động bên ngoài.`;
+   await input.fill(prompt);await ensureMode();
+   active={prompt,forwarded:false,rejected:0};
+   if(empty&&!(await button.isEnabled())){
+    evidence.uiDisabled=true;const after=await snap();evidence.after=counts(after);evidence.newCounts=additions(before,after);row.status='NEEDS_REVIEW';row.actual='UI khóa nút gửi khi nội dung rỗng; chưa kiểm chứng validation backend';row.reason='Không ép gửi khi UI chặn; chưa có danh sách Plan đầy đủ.';
+   }else{
+    const waiting=page.waitForResponse(r=>{try{return new URL(r.url()).origin===target.origin&&new URL(r.url()).pathname===chatPath&&r.request().method()==='POST'&&r.request().postDataJSON()?.message===prompt;}catch{return false;}},{timeout:empty?12000:60000}).catch(()=>null);
+    await button.click({timeout:15000});const response=await waiting;evidence.forwarded=active.forwarded;evidence.rejected=active.rejected;evidence.wireMode=wireMode;
+    if(empty){
+     evidence.http=response?.status()??null;
+     if(response?.ok()&&(response.headers()['content-type']||'').includes('text/event-stream')){try{await readBrainSse(response,60000);evidence.done=true;}catch{evidence.done=false;}}
+     const after=await snap();evidence.after=counts(after);evidence.newCounts=additions(before,after);
+     row.status='NEEDS_REVIEW';row.actual=`Kiểm tra rỗng: HTTP ${evidence.http??'không có'}; request=${active.forwarded?'có':'không'}`;row.reason='Chưa xác minh mã validation và toàn bộ Plan; không kết luận PASS từ HTTP hoặc UI đơn lẻ.';
+    }else{
+     if(!response||!active.forwarded)throw new Error('No matching forwarded chat response');
+     evidence.http=response.status();const stream=await readBrainSse(response);
+     const content=stream.done.message.content;const analysis=inspectAnswer(row.id,content);evidence.signals=analysis;
+     evidence.sse={events:stream.types,contentLength:content.length,done:true,toolEvents:stream.types.some(t=>['tool_start','tools'].includes(t)),resultKind:String(stream.done.message.meta.result_kind||'').replace(/[^a-z0-9_-]/gi,'').slice(0,64)};
+     fs.writeFileSync(path.join(evidenceDir,`${row.id}.answer.local.txt`),content+'\n');
+     let after;for(let i=0;i<4;i++){after=await snap();if(after.sessions.includes(stream.sessionId))break;await sleep(1500);}
+     evidence.after=counts(after);evidence.newCounts=additions(before,after);Object.assign(evidence,assessTransport(stream,before,after));
+     row.status='NEEDS_REVIEW';row.actual=`${evidence.transport}; SSE done; ${analysis.found}/${analysis.total} dấu hiệu nội dung; bị cắt: ${analysis.truncated?'có':'chưa thấy'}`;
+     row.reason='Chưa xác minh cấu trúc kết quả, ID liên kết hoặc policy theo tiêu chí gốc; lưu phản hồi để review.';
+     if(!evidence.sessionPersisted){stopReason='Không xác minh được phiên chat mới; dừng batch để kiểm tra.';row.reason+=' '+stopReason;}
+    }
+   }
+   if(evidence.newCounts&&(evidence.newCounts.agents>0||evidence.newCounts.goals>0||(empty&&(evidence.newCounts.proposals>0||evidence.newCounts.planRefs>0)))){stopReason='Phát hiện dữ liệu mới ngoài dự kiến sau yêu cầu chỉ phân tích/rỗng; dừng batch để kiểm tra audit.';row.reason+=' '+stopReason;}
+  }catch(e){evidence.forwarded=!!active?.forwarded;row.status=active?.forwarded?'NEEDS_REVIEW':'BLOCKED';row.actual=active?.forwarded?'Đã chuyển request; chưa xác minh phản hồi':'Chưa gửi thành công';row.reason=errorText(e);evidence.error=row.reason;stopReason='Dừng batch sau lỗi để tránh gửi lặp hoặc sai chế độ: '+row.reason;}
+  finally{active=null;row.durationMs=Date.now()-start;row.evidence=path.relative(dir,path.join(evidenceDir,`${row.id}.json`));fs.writeFileSync(path.join(evidenceDir,`${row.id}.json`),JSON.stringify(evidence,null,2)+'\n');save();console.log(row.status,row.actual,row.reason);}
+ }
+}
+try{await main();}catch(e){console.error(errorText(e));for(const row of rows)if(row.status==='NOT_RUN'&&(!selected||row.id===selected)){row.status='BLOCKED';row.reason=errorText(e);}}finally{if(rl)rl.close();if(browser)await browser.close();if(api)await api.dispose();const s=save();console.log(JSON.stringify({statuses:s.statuses,report:path.join(dir,'ui-batch.csv'),evidenceDir},null,2));console.log('UI batch only: cases.csv unchanged; NEEDS_REVIEW is not business PASS.');process.exitCode=s.statuses.PASS===s.total?0:2;}

@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { allCases, validateCases } from '../src/cases.js';
+const records=allCases();const result=validateCases();
+assert.equal(result.count,10);assert.equal(result.unique,10);assert.equal(result.invalid.length,0);assert.equal(result.duplicate.length,0);assert.ok(records.every(c=>c.group==='GO'));
+const source=fs.readFileSync(new URL('../src/groups/GO.js',import.meta.url),'utf8');
+const executorSource=source.split('export const implementations = {')[1];
+assert.ok(executorSource);
+assert.deepEqual([...executorSource.matchAll(/'WF-GO-\d{3}'(?=\s*:)/g)].map(m=>m[0].slice(1,-1)).sort(),records.map(c=>c.id).sort());
+console.log('OK: 10 mã GO, 10 executor; kiểm tra cấu trúc, KHÔNG phải PASS WCC.');

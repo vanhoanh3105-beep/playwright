@@ -1,0 +1,2 @@
+﻿Mã,Trạng thái lần chạy,Chi tiết,Điều kiện,Các bước,Mong đợi
+WF-GO-013,Cần đối chiếu,Phản hồi cd960ed7 ổn định 6 giây. Xem WF-GO-013.txt,Có sẵn Goal mơ hồ và chưa cung cấp KPI.,"1) Gửi Goal mơ hồ; 2) xem câu hỏi làm rõ, giả định hoặc chỉ tiêu đề xuất.",Thông tin chưa xác định được thể hiện là chưa xác minh hoặc cần làm rõ; không khẳng định KPI người dùng chưa cung cấp là yêu cầu đã chốt.

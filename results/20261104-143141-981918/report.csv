@@ -1,0 +1,2 @@
+﻿Mã,Trạng thái lần chạy,Chi tiết,Điều kiện,Các bước,Mong đợi
+WF-GO-013,Cần đối chiếu,Đã gửi cd960ed7; phản hồi quan sát được: WF-GO-013.txt. Kiểm tra tiêu chí Excel và workflow liên quan.,Có sẵn Goal mơ hồ và chưa cung cấp KPI.,"1) Gửi Goal mơ hồ; 2) xem câu hỏi làm rõ, giả định hoặc chỉ tiêu đề xuất.",Thông tin chưa xác định được thể hiện là chưa xác minh hoặc cần làm rõ; không khẳng định KPI người dùng chưa cung cấp là yêu cầu đã chốt.

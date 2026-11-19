@@ -1,0 +1,11 @@
+# GO SSE update — 2026-11-19
+
+Patch for the standalone GO project 1.0.0. Extract at the project root, where package.json lives. Does not change .env, authentication, config/go.contract.json, dependency versions or cases reports. Backup src/groups/GO.js before updating if modified locally.
+
+`npm.cmd run verify` should run 33 unit tests. No live validation performed when packaging.
+
+`node scripts/probe-go.mjs` is read-only: resolve company from the configured QA_TENANT and compare auth membership, read full Goal list (no pagination), workforce agents/proposals and chat sessions. If a list is incomplete, BLOCKED rather than guessed. It creates results/groups/GO/sse-probe.json only, separate from business results.
+
+For one actual QA chat (only in isolated authorized tenant with external actions disabled): set QA_ISOLATED_TEST_TENANT=1, ALLOW_QA_WRITES=1 and ALLOW_QA_CHAT=1 in the shell, then `node scripts/probe-go.mjs --send`. Select CEO, new chat and analysis / approval-required mode (not full authority) in Chromium; type QA in terminal to authorize one sample. Existing selector config is used; incorrect tenant, non-new session, mismatched message, more than one chat POST is refused on observed chat endpoint. This is not a system-wide external-action sandbox: QA isolation and safe mode remain required. The script records terminal SSE and matches its session ID against a new backend session, snapshots before / after, and saves local final answer to sse-answer.local.txt. Do not send unredacted local file. The shareable probe JSON has metadata and counts, no actual IDs, prompts or chat content; inspect before sharing.
+
+PASS_READ/PASS_TRANSPORT are not business PASS; they do not prove Goal, Task, WorkforceRequirement, plan ID or policy validation. Changes in aggregate counts are not causally tied to the chat without explicit IDs. Plan references are only those visible on proposals, not a complete plan list. Contract remains unconfirmed and `test:go` keeps its existing safety gates. No activation, approval, permission changes or cross-tenant test is performed by the probe. Future mapping must use real structured result and policy endpoints, not message.id or session_id as plan ID.

@@ -1,0 +1,23 @@
+{
+  "name": "bos-playwright-ds",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent DS discovery QA, 8 cases",
+  "scripts": {
+    "test": "node scripts/run-ds.mjs --send",
+    "test:ds": "node scripts/run-ds.mjs --send",
+    "test:list": "node scripts/list-ds.mjs",
+    "verify": "node --test tests/unit/*.test.mjs",
+    "login:ceo": "node scripts/login.mjs ceo",
+    "smoke:ds": "node scripts/run-ds.mjs --read-only",
+    "report:ds": "node scripts/report-ds.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "dotenv": "^16.6.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

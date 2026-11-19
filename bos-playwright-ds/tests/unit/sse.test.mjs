@@ -1,0 +1,18 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {parseBrainSse,readBrainSse} from '../../src/sse.js';
+const s='synthetic-session', t='synthetic-turn';
+const done={type:'done',session_id:s,message:{id:'msg',role:'assistant',content:'Synthetic final response',meta:{result_kind:'unknown'}}};
+const frame=o=>`data: ${JSON.stringify(o)}\n\n`;
+const start=frame({type:'turn',turn_id:t,session_id:s})+frame({type:'session',session_id:s});
+const good=start+frame({type:'reasoning',text:'not output'})+frame({type:'chunk',text:'abc'})+frame(done);
+test('SSE completed: final response, not reasoning',()=>{const r=parseBrainSse(good);assert.equal(r.done.message.content,done.message.content);assert.equal(r.turnId,t);assert.equal(r.sessionId,s);assert.equal(r.chunks,1);});
+test('SSE CRLF and comment',()=>assert.equal(parseBrainSse((': comment\n\n'+good).replace(/\n/g,'\r\n')).sessionId,s));
+test('HTTP-style DONE sentinel cannot substitute WCC done',()=>assert.throws(()=>parseBrainSse(start+'data: [DONE]\n\n'),/Missing SSE done/));
+test('SSE error event rejected',()=>assert.throws(()=>parseBrainSse(good+frame({type:'error'})),/error/));
+test('SSE session mismatch rejected',()=>assert.throws(()=>parseBrainSse(good+frame({type:'session',session_id:'other'})),/inconsistent session/));
+test('SSE blank terminal content rejected',()=>assert.throws(()=>parseBrainSse(start+frame({...done,message:{...done.message,content:' '}})),/terminal message/));
+test('SSE malformed rejected',()=>assert.throws(()=>parseBrainSse(good+'data: {broken\n\n'),/Malformed/));
+test('SSE duplicate terminal rejected',()=>assert.throws(()=>parseBrainSse(good+frame(done)),/Duplicate/));
+test('Response adapter accepts observed media type',async()=>assert.equal((await readBrainSse({ok:()=>true,headers:()=>({'content-type':'text/event-stream; charset=utf-8'}),text:async()=>good})).sessionId,s));
+test('Response adapter rejects JSON masquerading as stream',async()=>assert.rejects(readBrainSse({ok:()=>true,headers:()=>({'content-type':'application/json'})}),/text\/event-stream/));
